@@ -1,0 +1,338 @@
+\documentclass[letterpaper,twocolumn,10pt]{article}
+\usepackage{usenix,epsfig,endnotes,float}
+\begin{document}
+
+%don't want date printed
+%make title bold and 14 pt font (Latex default is non-bold, 16 pt)
+\title{\Large \bf Large Scale Data Mining\\ Homework 1}
+\author{
+{\rm Anurag Pande - 604749647}\\
+{\rm Brendon Faleiro - 704759004}\\
+{\rm Sachin Krishna Bhat - 304759727}
+}
+
+\maketitle
+\section{Introduction}
+This project analyzes two data sets - \textbf{Network Backup Data} and \textbf{Boston Housing Data}. We use the method of regression while anaysing the datasets. A method for fitting a curve (not necessarily a straight line) through a set of points using some goodness-of-fit criterion\cite{wolfram}. During this process we have tudied the use of several regression tools, including the Linear Regression, Random Forest Regression, Polynomial Regression and Neural Network Regression models. We have also studied the concepts of cross validation and regularization to improve the prediction of dependent variables in the datasets.\\\\
+The \textbf{Network-Backup Dataset} is comprised of simulated traffic data on a backup system in a network. It contains information about both the size of the data and the time taken for moving the data. In this project, we have tried to predict the \textbf{backup size} of the traffic depending on the file name, day/time of backup. This prediction was done with the use of Linear, Random Forest, Neural Network and Polynomial Regression models.\\\\ 
+The \textbf{Boston Housing Dataset} contains housing values of the suburbs. In this project, we have tried to estimate the \textbf{value of owner-occupied homes}. We have used Linear and Polynomial Regressions to create a predictive model.
+\section{Network Backup}
+The system monitors the files residing in a destination machine and copies their changes in four hours cycles. At the end of each backup process, the size of the data moved to the destination as well as the duration it took are logged, to be used for developing prediction models.\\
+The Network-Backup Dataset has information of files maintained in destination machine and it monitors and copies their changes in four hours cycle. The features captured in data set are as follows:
+\begin{enumerate}
+\item \textbf{Week index}
+\item \textbf{Day of the week:} at which the file is backed up starts
+\item \textbf{Backup start time - Hour of the day:} the exact time that the backup process is completed
+\item \textbf{Workflow ID}
+\item \textbf{File name}
+\item \textbf{Backup size:} the size of the file that is backed up in that cycle in GB
+\item \textbf{Backup time:} the duration of the backup procedure in hour
+\end{enumerate}
+\subsection{Question 1: Relationships in the Dataset}
+We try to develop prediction models for predicting the size of the data being backed up as well as the time a backup process may take. To get an idea on the type of relationships in the dataset, for each workflow, we plot the actual copy sizes of all the files on a time period of 20 days. 
+\\
+On analysis of each of the plots, we see the following trends in the workflows.
+\begin{itemize}
+\item\textbf{Workflow 0:} There is a clear drop in the copy sizes towards the weekends. The data copy sizes vary between 0.3 and 0.7 GBs. This would indicate that Workflow\_0 (Files 0 to 5) typically are used to log content during the weekdays. 
+\begin{figure}[H]
+  \includegraphics[width=\linewidth]{imgs/Workflow_0}
+  \caption{Copy Size vs Time Period for Workflow 0}
+  \label{fig:Workflow0}
+\end{figure}
+\item\textbf{Workflow 1:} The copy sizes in Workflow\_1 peaks towards the start of every week (Mondays). Thereafter the copy sizes falls to 0GB for the rest of the week. This could mean that the files included in Workflow\_1 (Files 6 to 11) are typically only used on Mondays, thus needing a backup and then cleared for the rest of the week.
+\begin{figure}[H]
+  \includegraphics[width=\linewidth]{imgs/Workflow_1}
+  \caption{Copy Size vs Time Period for Workflow 1}
+  \label{fig:Workflow1}
+\end{figure}
+\item\textbf{Workflow 2:} Workflow\_2 (Files 12 to 17) shows a rise in copy sizes between Wednesdays and Saturdays with the copy sizes peaking on Thursdays. The rest of the days the copy sizes are almost 0GB.
+\begin{figure}[H]
+  \includegraphics[width=\linewidth]{imgs/Workflow_2}
+  \caption{Copy Size vs Time Period for Workflow 2}
+  \label{fig:Workflow2}
+\end{figure}
+\item\textbf{Workflow 3:} Workflow\_3 (Files 18 to 23) shows a trend similar to Workflow\_2 with copy sizes peaking between Wednesday and Saturdays at around 0.07 GB. However, unlike Workflow\_2, the copy sizes during the rest of the week is uneven and not 0GB.
+\begin{figure}[H]
+  \includegraphics[width=\linewidth]{imgs/Workflow_3}
+  \caption{Copy Size vs Time Period for Workflow 3}
+  \label{fig:Workflow3}
+\end{figure}
+\item\textbf{Workflow 4:} The data backup trends in Workflow\_4 are almost the inverse of Workflow\_1. It would seem like the files in Workflow\_4 (Files 24 to 29) are worked on during the weekends and only contain a small amount of data during the rest of the week. The copy sizes vary between 0.5 and 1.5GB.
+\begin{figure}[H]
+  \includegraphics[width=\linewidth]{imgs/Workflow_4}
+  \caption{Copy Size vs Time Period for Workflow 4}
+  \label{fig:Workflow4}
+\end{figure}
+\end{itemize}
+Thus we have seen, almost all the dataset workflows vary largely based on the day of the week.
+
+\subsection{Question 2: Copy Size Prediction}
+In this section we attempt to predict the copy size of a file, given other attributes. To achieve this, three different regression techniques were used:
+\begin{itemize}
+\item Linear Regression
+\item Random Forest Regression
+\item Complex Regression (Polynomial Function)
+\end{itemize}
+\subsubsection{Linear Regression}
+In order to predict the copy size, a Linear Regression model was built with the copy size as the target variable and the other attributes were used as features. The ordinary least squares function was used to calculate the penalty on the regression. This model was tested using 10 folds cross validation.The model was created using the \emph{Linear\_Models from Scikit-Learn Library} and the \emph{OLS library for Pandas}.\\\\
+As can be seen from the Pandas OLS summary presented in Figure \ref{fig:Visualization}, the \textbf{RMSE} value obtained after 10 fold Cross-Validation is \textbf{0.07956}. On the basis of the output we can conclude that the p values for all the variables is 0.00. Thus showing a strong dependency between the copy size and the variables.\\\\
+\begin{figure}[H]
+  \includegraphics[width=80mm,height=75mm]{2a/visualization}
+  \caption{Results from Linear Regression on the Network Backup Dataset}
+  \label{fig:Visualization}
+\end{figure}
+\textbf{\underline{Predicted vs Actual Values}}\\
+The graph in Figure \ref{fig:LRPA} shows the mapping of predicted values against the actual values of the Copy Size of the network backup data set when the Linear regression model is applied. In most cases, the predicted values have an extremely small deviation from the actual values.
+\begin{figure}[H]
+  \includegraphics[width=\linewidth]{2a/LR1}
+  \caption{Linear Regression - Predicted Values vs Actual Values}
+  \label{fig:LRPA}
+\end{figure}
+\textbf{\underline{Residuals vs Predicted Values}}\\
+The \textbf{Residual Value} is the difference between the actual values and the predicted values. In Figure \ref{fig:LRRA}, we see the mapping between the predicted values and residual values of the copy sizes of the network backup data when the Linear Regression model is used. Since most of the residuals are concentrated close to the zero mark, and thereby indicate a good fit.
+\begin{figure}
+  \includegraphics[width=\linewidth]{2a/LR2}
+  \caption{Linear Regression - Residual Values vs Predicted Values}
+  \label{fig:LRRA}
+\end{figure}
+While the model works well with majority of the data points, we still see a considerable error in mapping certain outliers. \\
+\subsubsection{Random Forest Regression}
+Random forests or random decision forests are an ensemble learning method for classification, regression and other tasks. Random Forests operate by constructing multiple decision trees at training time\cite{RandomForest}. These trees then output the mode of the classes (classification) or mean prediction (regression) of the individual trees. Individual decision trees are known to overfit for the given data and thus, Random Forests help in avoiding such overfitting.\\
+In our analysis, we used the \emph{scikit-learn library}. The model was tuned by varying the number of trees in the model and the maximum depth of each tree. Initially, the tree depth was decided by creating models by varying the depths of trees between 4 and  15, and setting the number of trees to 20. As can be seen in Figure \ref{fig:Tuning for depth}, minimum RMS error was found at a depth of 10.\\
+Once the best depth was fixed at 10, we then tuned the model to find the optimum number of trees. Models were created for varying numbers of trees between 20 and 220. As shown in Figure \ref{fig:TuningTrees}, the RMSE is minimized when 40 trees are used. 
+When we take \textbf{best depth of 10} and \textbf{number of trees as 40}, a 10-fold Cross-Validation on the model gives us an \textbf{RMSE of 0.009597}.
+\begin{figure}[H]
+  \includegraphics[width=\linewidth]{2b/DepthTune}
+  \caption{Random Forest Regression - RMSE vs Maximum Depth}
+  \label{fig:Tuning for depth}
+\end{figure}
+\begin{figure}[H]
+  \includegraphics[width=\linewidth]{2b/TreeTune}
+  \caption{Random Forest Regression - RMSE vs Number of Trees}
+  \label{fig:TuningTrees}
+\end{figure}
+\textbf{\underline{Predicted vs Actual Values}}\\
+Figure \ref{fig:PredictedActual} shows the mapping of the Predicted values against the Actual data values. The values in the figure lie closer to the line generated by the model. 
+\begin{figure}[H]
+  \includegraphics[width=\linewidth]{2b/FittedActual}
+  \caption{Random Forest Regression - Predicted Values vs Actual Values}
+  \label{fig:PredictedActual}
+\end{figure}
+\textbf{\underline{Residuals vs Actual Values}}
+Figure \ref{fig:ResidualsActuals} shows a mapping of the Residuals from the predictions against the Predicted Values. Since all the values are mapped close to the 0 line, we know that this model is good fit. 
+\begin{figure}[H]
+  \includegraphics[width=\linewidth]{2b/ResidualsFitted}
+  \caption{Random Forest Regression - Residual Values vs Predicted Values}
+  \label{fig:ResidualsActuals}
+\end{figure}
+\textbf{\underline{Relationship between Linear and Random Forest}}\\\textbf{\underline{ Regression models}}\\
+The RMSE value obtained from the Linear Regression model was \textbf{0.07956}. The Random Forest Regressor on the other hand has an RMSE of \textbf{0.009578}. The Random Forest regressor thus gives us a better prediction model that the Linear Regressor. However, unlike the Linear Regressor, the Random Forest has uncertainties in the RMSE values due the fact that the start node is selected at random.\\
+ \\
+ As seen in Figures \ref{fig:LRPA} and \ref{fig:PredictedActual}, the outliers are removed by the Random Forest Regressor. Also the points now lie closer to the regressor line. As a result the RMSE is much smaller with the Random Forest Regressor than the Linear Regressor.
+\subsubsection{Neural Network Regression}
+Neural network regressors are used to map a continuous input to a continuous output. We built a NeuralNetwork Regressor using the \emph{PyBrain Library}. The model was tuned by varying parameters such as the number of epochs run by the model and the number of nodes in the hidden layer of the network. \\
+\begin{figure}[H]
+ \includegraphics[width=\linewidth]{3/2c}
+  \caption{RMSE vs Epochs}
+  \label{fig:Epochs}
+\end{figure}
+The neural network is modelled to get best parameters by varying the number of epoch for 100 hidden nodes. We identified that the model worked best with 100 epochs and achieved an RMSE of \textbf{0.0483153}.\\\\
+\textbf{\underline{Major Parameters and their Effect on the RMSE}}\\
+The main parameters we used in tuning our model were:
+\begin{itemize}
+\item Number of Epochs\\
+The ideal number of epochs needed to tune a model is dependent on the dataset being used. In order to achieve an optimum number of epochs, a threshold value is set on the error. Once the error value falls below this threshold, we consider the model to be sufficiently tuned.
+\item Number of Nodes in Hidden layer\\
+Like the number of epochs needed, the number of hidden nodes needed for an optimum performance is highly dependent on the dataset being used. In order to achieve optimum performance, models were created by varying the number of hidden nodes. The RMSE was found to be minimum for the given dataset when 100 hidden nodes were used.
+\end{itemize}
+\subsection{Question 3: }
+In this section we try to predict the backup size for each workflow independently. The model was built using the Linear regression technique.
+\subsubsection{Linear Regression on WorkFlow 0:}
+\begin{figure}[H]
+  \includegraphics[width=\linewidth]{3/o1}
+  \caption{Linear Regression Estimated Coefficients for Workflow 0}
+  \label{fig:o1}
+\end{figure}
+The RMSE values for all the workflows together as seen in section 1 is \textbf{0.07956}. However, when the RMSE was calculated for Workflow-0 alone, the value is minimized to \textbf{0.02948}. The Figures \ref{fig:WF0FittedActual} and \ref{fig:WF0ResidActual} shown below also prove that there is a mich smaller deviation between the predicted and actual values and the residual is kept below 0.1. Thus the individual fit is much better than the overall fit.
+\begin{figure}[H]
+  \includegraphics[width=\linewidth]{3/LR-FittedvsActualWorkFlow0}
+  \caption{Linear Regression - Predicted Values vs Actual Values}
+  \label{fig:WF0FittedActual}
+\end{figure}
+\begin{figure}[H]
+  \includegraphics[width=\linewidth]{3/LR-ResidualsvsFittedWorkFlow0}
+  \caption{Linear Regression - Residuals vs Predicted Values}
+  \label{fig:WF0ResidActual}
+\end{figure}
+
+\subsubsection{Linear Regression on WorkFlow\_1:}
+\begin{figure}[H]
+  \includegraphics[width=\linewidth]{3/o2}
+  \caption{Linear Regression Estimated Coefficients for Workflow 1}
+  \label{fig:o2}
+\end{figure}
+For Workflow-1, the RMSE value is \textbf{0.10374}. This value is higher than the overall RMSE. The residual values are higher too.
+\begin{figure}[H]
+  \includegraphics[width=\linewidth]{3/LR-FittedvsActualWorkFlow1}
+  \caption{Linear Regression - Predicted Values vs Actual Values}
+  \label{fig:WF1FittedActual}
+\end{figure}
+\begin{figure}[H]
+  \includegraphics[width=\linewidth]{3/LR-ResidualsvsFittedWorkFlow1}
+  \caption{Linear Regression - Residuals vs Predicted Values}
+  \label{fig:WF1ResidActual}
+\end{figure}
+
+\subsubsection{Linear Regression on WorkFlow\_2:}
+\begin{figure}[H]
+  \includegraphics[width=\linewidth]{3/o3}
+  \caption{Linear Regression Estimated Coefficients for Workflow 2}
+  \label{fig:o3}
+\end{figure}
+For Workflow-2, the RMSE value is \textbf{0.0255}. This value is lesser than the overall RMSE. Figure \ref{fig:WF2ResidActual} shows how the residual values lie between the range \textbf{0.05} and \textbf{-0.15}. The mapping of predicted and actual values is also scattered.
+\begin{figure}[H]
+  \includegraphics[width=\linewidth]{3/LR-FittedvsActualWorkFlow2}
+  \caption{Linear Regression - Predicted Values vs Actual Values}
+  \label{fig:WF2FittedActual}
+\end{figure}
+\begin{figure}[H]
+  \includegraphics[width=\linewidth]{3/LR-ResidualsvsFittedWorkFlow2}
+  \caption{Linear Regression - Residuals vs Predicted Values}
+  \label{fig:WF2ResidActual}
+\end{figure}
+
+\subsubsection{Linear Regression on WorkFlow\_3:}
+The RMSE in this case is as low as \textbf{0.05917}. This is mainly due to the small copy sizes in this workflow. Figure \ref{fig:WF3FittedActual} shows us how there is a constant prediction around 0.01. 
+\begin{figure}[H]
+  \includegraphics[width=\linewidth, scale=0.9]{3/o4}
+  \caption{Linear Regression Estimated Coefficients for Workflow 3}
+  \label{fig:o4}
+\end{figure}
+\begin{figure}[H]
+  \includegraphics[width=\linewidth, scale=0.9]{3/LR-FittedvsActualWorkFlow3}
+  \caption{Linear Regression - Predicted Values vs Actual Values}
+  \label{fig:WF3FittedActual}
+\end{figure}
+\begin{figure}[H]
+  \includegraphics[width=\linewidth, scale=0.9]{3/LR-ResidualsvsFittedWorkFlow3}
+  \caption{Linear Regression - Residuals vs Predicted Values}
+  \label{fig:WF3ResidActual}
+\end{figure}
+
+\subsubsection{Linear Regression on WorkFlow\_4:}
+\begin{figure}[H]
+  \includegraphics[width=\linewidth]{3/o5}
+  \caption{Linear Regression Estimated Coefficients for Workflow 4}
+  \label{fig:o5}
+\end{figure}
+The RMSE value for workflow 4 is  \textbf{0.08422}. This is higher than the overal RMSE. Also, the residual values vary between \textbf{0.16} and \textbf{-1.3}. This is quite a large range of values. 
+\begin{figure}[H]
+  \includegraphics[width=\linewidth]{3/LR-FittedvsActualWorkFlow4}
+  \caption{Linear Regression - Predicted Values vs Actual Values}
+  \label{fig:WF4FittedActual}
+\end{figure}
+\begin{figure}[H]
+  \includegraphics[width=\linewidth]{3/LR-ResidualsvsFittedWorkFlow4}
+  \caption{Linear Regression - Residuals vs Predicted Values}
+  \label{fig:WF4ResidActual}
+\end{figure}
+
+Thus the RMSE for individual workflows was better than the overall value whenever the fluctuation in copy sizes was comparatively smaller (in cases 0, 2, 3), while it was worse when there was a large swing in the copy sizes (cases 1 and 4).
+
+\subsubsection{Polynomial Regression}
+This section uses the Polynomial Regression function to improve the fit of the variables and improve the prediction of the copy size. The model was tested by fitting the polynomial functions with \textbf{degrees between 1 and 15}. By plotting the \textbf{ RMSE vs polynomial degree} we see that the polynomial with degree 5 and above has the minimum RMSE value. Using this degree and splitting the entire dataset as 90 percent training and 10 percent testing, we get an RMSE value of 0.16.
+\begin{figure}[H]
+  \includegraphics[width=\linewidth]{3/RMSEvsPolyDegree}
+  \caption{RMSE vs Polynomial Degree }
+  \label{fig:RMSEPoly}
+\end{figure}
+
+\textbf{\underline{Cross-Validation and Complexity}}\\
+\begin{itemize}
+\item Cross Validation is used to measure the performance of the predictive model. Since we are trying to achieve the best fit for model, we need a method to measure the performance of the model. Setting high degrees of freedom for a polynomial regression function often results in overfitting the data. In such cases, Cross-Validation helps in achieving the best fit on the data without overfitting the model.
+\item Too small a training dataset will not be able to give the right performance and too large a training dataset results in overfitting. It is necessary to maintain the right balance in the training and testing dataset. The Cross-Validation technique achieves a balance in the training and testin gof models as the testing data is got from the training data itself.
+\item We can use cross validation on a number of different training models to choose the best model.
+ \end{itemize}
+ \section{Boston Housing}
+ The Boston Housing Dataset has information about the housing  values in the suburbs of the greater Boston area. The features captured are as follows:
+ \begin{enumerate}
+ \item \textbf{CRIM:} per capita crime rate by town
+ \item \textbf{ZN:} proportion of residential land zoned for lots over 25,000 sq. ft.
+\item \textbf{INDUS:} proportion of non-retail business acres per town
+\item \textbf{CHAS:} Charles River dummy variable (= 1 if tract bounds river; 0 otherwise)
+\item \textbf{NOX:} nitric oxides concentration (parts per 10 million)
+\item \textbf{RM:} average number of rooms per dwelling
+\item \textbf{AGE:} proportion of owner-occupied units built prior to 1940
+\item \textbf{DIS:} weighted distances to five Boston employment centers
+\item \textbf{RAD:} index of accessibility to radial highways
+\item \textbf{TAX:} full-value property-tax rate per \$10,000
+\item \textbf{PTRATIO:} pupil-teacher ratio by town
+\item \textbf{B:} \[1000(B_k - 0.63)^2\] where Bk is the proportion of blacks by town
+\item \textbf{LSTAT:} \% lower status of the population
+\item \textbf{MEDV:} Median value of owner-occupied homes in \$1000’s
+ \end{enumerate}
+ \
+ \subsection{Predicting MEDV using other attributes}
+ In this section, we attempt to predict the value of MEDV based on the other attributes. The ordinary least square function is used as the penalty function. Two models were used to achieve this:
+ \begin{itemize}
+ \item Linear Regression
+ \item Polynomial Regression
+ \end{itemize}
+ The method of 10-folds Cross-Validation was used to measure the performance of the model.
+\subsubsection{Linear Regression}
+ The results obtained from running Linear Regression on the Housing dataset were as follows:
+\begin{figure}[H]
+  \includegraphics[width=\linewidth]{4/4a}
+  \caption{Visualization of the Linear Regression results}
+  \label{fig:HousingLR}
+\end{figure}
+
+We see that the fitting of MEDV is dependent largely (95\%) on the values of the remaining variables as described by the R-squares value. Also, except INDUS, NOX and AGE, all the other values are significant due to their low p values. The RMSE value of the estimator is \textbf{5.8911}.\\
+\textbf{\underline{Predicted vs Actual Values}}\\
+In Figure \ref{ActFitHouse}, we see that the predicted values are close to the regressed diagonal line. Thus, the predicted and actual values are quite similar. However, the model underpredicts for values close to 50.
+\begin{figure}[H]
+  \includegraphics[width=\linewidth]{4/LR-FittedvsActual}
+  \caption{Linear Regression - Predicted vs Actual Values}
+  \label{ActFitHouse}
+\end{figure}
+\textbf{\underline{Residuals vs Fitted Values}}\\
+From the plot of the residuals shown below we can see that data is moore widespread and there is a wide spread in the residual values. There are also a large number of outliers due to the high absolute values of the residuals for some data points.
+ \begin{figure}[H]
+  \includegraphics[width=\linewidth]{4/LR-ResidualsvsFitted}
+  \caption{Linear Regression - Residuals vs Fitted Values of MEDV}
+  \label{ResFitHouse}
+ \end{figure}
+ \subsubsection{Polynomial Regression}
+ Here we see that the best fit is observed with a polynomial degree is from 1 to 3. The RMSE obtained for this model was \textbf{1.58317}.
+
+ \begin{figure}[H]
+  \includegraphics[width=\linewidth]{4/RMSEvsPolyDegree}
+  \caption{Linear Regression - Residuals vs Fitted Values of MEDV}
+  \label{ResFitHouse}
+ \end{figure}
+
+\subsection{Regularization of the Parameters}
+\subsubsection{Ridge Regression}
+Best Alpha value for Ridge Regression : 1\\
+Best RMSE for corresponding Alpha = 4.69515199361
+
+\subsubsection{Lasso Regression}
+Best Alpha value for Lasso Regularization : 0.01\\
+Best RMSE for corresponding Alpha = 4.86585388387
+
+\begin{thebibliography}{1}
+
+\bibitem{wolfram} Defining Regression.\\ \texttt{http://mathworld.wolfram.com/\\Regression.html}.
+
+\bibitem{RandomForest} Ho, Tin Kam (1995). Proceedings of the 3rd International Conference on Document Analysis and Recognition, Montreal, QC, 14–16 August 1995. pp. 278–282.
+\\\texttt{http://ect.bell-labs.com/who/tkh/public-\\ations/papers/odt.pdf}.
+
+\end{thebibliography}
+
+\end{document}
+
+
+
+
+
+
