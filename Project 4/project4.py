@@ -7,7 +7,6 @@ import runthestuff
 logging.basicConfig(level = logging.DEBUG, format='%(levelname)s %(asctime)s %(message)s')
 
 def runCodeForQues(ques):
-    logging.info("request for {0}".format(ques))
     if ques=='1':
         runthestuff.question_1()
     elif ques=='2':
