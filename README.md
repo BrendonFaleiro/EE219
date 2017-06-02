@@ -6,3 +6,5 @@ Projects from UCLA Data Mining Course
 ## Project 2 - Classification Analysis
 
 ## Project 3 - Collaborative Filtering
+
+## Project 4 - Clustering
